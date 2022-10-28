@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+  <h1>유다윗</h1>
   <h1>손민혁</h1>
+
   <h1>{{ person.username }}님의 프로필</h1>
   <div>
     팔로워 : <span id='followers-count'>{{ person.followers.all|length }}</span> / 
