@@ -115,8 +115,9 @@ def profile(request, username):
 def follow(request, user_pk):
     if request.user.is_authenticated:
 
+        User = get_user_model()
         me = request.user # 요청한 사람 (사용자)
-        you = get_object_or_404(get_user_model(), pk=user_pk) # 팔로우를 당할 사람
+        you = User.objects.get(pk=user_pk)
 
         if me != you:
             if you.followers.filter(pk=me.pk).exists():
@@ -127,6 +128,8 @@ def follow(request, user_pk):
                 is_followed = True
             context = {
               'is_followed': is_followed,
+              'followers_count': you.followers.count(),
+              'followings_count': you.followings.count(),
             }
             return JsonResponse(context)
         return redirect('accounts:profile', you.username)
