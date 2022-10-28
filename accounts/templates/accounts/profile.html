@@ -8,7 +8,7 @@
 
   {% if request.user != person %}
   <div>
-    <form id="follow-form" data-user-id = {{ person.id }}> 
+    <form id="follow-form" data-uesr-id = {{ person.id }}>
       {% csrf_token %}
       {% if request.user in person.followers.all %}
         <input type="submit" value="언팔로우">
@@ -42,35 +42,18 @@
 {% endblock content %}
 
 {% block script %}
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-
-  const followform = document.querySelector('#follow-form')
-  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value // 항상 변하는 값
-
-  followform.addEventListener('submit', function (event) {
-    // console.log(event)
+  const form = document.querySelector('#follow-form')
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
+  form.addEventListener('submit', function (event) {
     event.preventDefault()
     const userId = event.target.dataset.userId
-    // console.log(userId)
-
     axios({
-      method: 'POST',
-      // url: '/accounts/'+userId+'/follow',
-      url: `/accounts/${userId}/follow/`, // 6버전 이후 가능
-      headers: {'X-CSRFToken': csrfToken},      
+      method: 'post',
+      url: `/accounts/${userId}/follow/`,
+      hearders: {'X-CSRFToken': csrftoken,},
     })
-      .then((response) => {
-        // console.log(userId)
-        const isFollowed = response.data.is_followed
-        const followBtn = document.querySelector('#follow-form > input[type=submit]')
-        if (isFollowed === true) {
-          followBtn.value = '언팔로우'
-        } else {
-          followBtn.value = '팔로우'
-        }
-      })
-    })
+  })
 </script>
 {% endblock script %}
 
