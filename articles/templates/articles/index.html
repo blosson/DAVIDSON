@@ -14,12 +14,13 @@
     <p>제목 : {{ article.title }}</p>
     <p>내용 : {{ article.content }}</p>
     <div>
-      <form action="{% url 'articles:likes' article.pk %}" method="POST">
+      {% comment %} <form action="{% url 'articles:likes' article.pk %}" method="POST"> {% endcomment %}
+      <form class='like-forms' data-article-id={{ article.pk }}>
         {% csrf_token %}
         {% if request.user in article.like_users.all %}
-          <input type="submit" value="좋아요 취소">
+          <input type="submit" value="좋아요 취소" id="like-{{ article.pk }}">
         {% else %}
-          <input type="submit" value="좋아요">
+          <input type="submit" value="좋아요" id="like-{{ article.pk }}">
         {% endif %}
       </form>
     </div>
@@ -27,3 +28,35 @@
     <hr>
   {% endfor %}
 {% endblock content %}
+
+{% block script %}
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const likeForms = document.querySelectorAll('.like-forms')
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value
+    
+    likeForms.forEach((form) => {
+      form.addEventListener('submit', function (event) {
+      event.preventDefault()
+      const articleId = event.target.dataset.articleId
+      axios({
+        method: 'POST',
+        url: `/articles/${articleId}/likes/`,
+        headers: {'X-CSRFToken': csrfToken}
+      })
+        .then(response => {
+          const isLike = response.data.is_like
+          const likeTag = document.querySelector(`#like-${articleId}`)
+          console.log(likeTag)
+          console.log(isLike)
+          if (isLike === true) {
+            likeTag.value = "좋아요 취소"
+          } else {
+            likeTag.value = "좋아요"
+          }
+        })
+      })
+    })
+  </script>
+
+{% endblock script %}
